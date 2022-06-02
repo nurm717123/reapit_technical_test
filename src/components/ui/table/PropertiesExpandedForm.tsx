@@ -1,5 +1,6 @@
 import { ReapitConnectSession } from '@reapit/connect-session'
 import { Button, ButtonGroup, FormLayout, InputGroup, InputWrap, Molecule, Subtitle, useSnack } from '@reapit/elements'
+import { PropertyModel } from '@reapit/foundations-ts-definitions'
 import React from 'react'
 import { updatePropertiesApiService } from '../../../platform-api/properties-api'
 
@@ -12,20 +13,7 @@ function PropertiesExpandedForm({
   connectSession,
 }: {
   id?: string
-  address?: {
-    buildingName?: string,
-    buildingNumber?: string,
-    line1?: string,
-    line2?: string,
-    line3?: string,
-    line4?: string,
-    postcode?: string,
-    countryId?: string,
-    geolocation?: {
-      latitude?: number,
-      longitude?: number,
-    }
-  },
+  address?: PropertyModel['address'],
   // buildingNumber?: string
   // buildingName?: string
   _eTag?: string
