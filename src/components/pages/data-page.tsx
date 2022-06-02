@@ -18,6 +18,7 @@ import { reapitConnectBrowserSession } from '../../core/connect-session'
 import { configurationAppointmentsApiService } from '../../platform-api/configuration-api'
 import { ListItemModel } from '@reapit/foundations-ts-definitions'
 import { openNewPage } from '../../utils/navigation'
+import { propertiesApiService } from '../../platform-api/properties-api'
 
 export const DataPage: FC = () => {
   const { connectSession } = useReapitConnect(reapitConnectBrowserSession)
@@ -28,6 +29,12 @@ export const DataPage: FC = () => {
     const fetchAppoinmentConfigs = async () => {
       setLoading(true)
       const serviceResponse = await configurationAppointmentsApiService(connectSession)
+
+      const fetchResult = await propertiesApiService(connectSession, {
+        marketingMode: ['selling'],
+      })
+
+      console.log(fetchResult, 'test')
 
       if (serviceResponse) {
         setAppointmentConfigTypes(serviceResponse)
