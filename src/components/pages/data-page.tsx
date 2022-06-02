@@ -14,31 +14,33 @@ import {
   Table,
 } from '@reapit/elements'
 import { useReapitConnect } from '@reapit/connect-session'
+import { PropertyModelPagedResult } from '@reapit/foundations-ts-definitions'
 import { reapitConnectBrowserSession } from '../../core/connect-session'
-import { configurationAppointmentsApiService } from '../../platform-api/configuration-api'
-import { ListItemModel } from '@reapit/foundations-ts-definitions'
 import { openNewPage } from '../../utils/navigation'
 import { propertiesApiService } from '../../platform-api/properties-api'
 
 export const DataPage: FC = () => {
   const { connectSession } = useReapitConnect(reapitConnectBrowserSession)
-  const [appointmentConfigTypes, setAppointmentConfigTypes] = useState<ListItemModel[]>([])
+  const [Properties, setProperties] = useState<PropertyModelPagedResult>({})
+
   const [loading, setLoading] = useState<boolean>(false)
+
+  const refetchData = async () => {
+    const fetchResult = await propertiesApiService(connectSession, {
+      marketingMode: ['selling'],
+    })
+
+    if (fetchResult) {
+      setProperties(fetchResult)
+    }
+  }
 
   useEffect(() => {
     const fetchAppoinmentConfigs = async () => {
       setLoading(true)
-      const serviceResponse = await configurationAppointmentsApiService(connectSession)
 
-      const fetchResult = await propertiesApiService(connectSession, {
-        marketingMode: ['selling'],
-      })
+      await refetchData()
 
-      console.log(fetchResult, 'test')
-
-      if (serviceResponse) {
-        setAppointmentConfigTypes(serviceResponse)
-      }
       setLoading(false)
     }
 
@@ -73,23 +75,44 @@ export const DataPage: FC = () => {
         </Button>
       </SecondaryNavContainer>
       <PageContainer className={elHFull}>
-        <Title>Appointment Config List</Title>
+        <Title>Properties for Sale</Title>
         {loading ? (
           <Loader label="loading" />
         ) : (
           <Table
-            rows={appointmentConfigTypes.map(({ id, value }) => ({
+            rows={Properties._embedded?.map(({ id, boardNotes, description, selling }) => ({
               cells: [
                 {
-                  label: 'Config Id',
-                  value: id ?? '',
+                  label: 'Properties Id',
+                  value: id?.length ? id : '-',
                   narrowTable: {
                     showLabel: true,
                   },
                 },
                 {
-                  label: 'Config Value',
-                  value: value ?? '',
+                  label: 'Selling Agency',
+                  value: selling?.agency,
+                  narrowTable: {
+                    showLabel: true,
+                  },
+                },
+                {
+                  label: 'Selling Price',
+                  value: selling?.price,
+                  narrowTable: {
+                    showLabel: true,
+                  },
+                },
+                {
+                  label: 'Description',
+                  value: description ?? '',
+                  narrowTable: {
+                    showLabel: true,
+                  },
+                },
+                {
+                  label: 'Board Notes',
+                  value: boardNotes ?? '',
                   narrowTable: {
                     showLabel: true,
                   },

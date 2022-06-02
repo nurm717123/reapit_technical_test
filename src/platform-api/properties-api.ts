@@ -1,5 +1,5 @@
 import { ReapitConnectSession } from '@reapit/connect-session'
-import { Properties, PropertyModelPagedResult, PropertyModel } from '@reapit/foundations-ts-definitions'
+import { Properties, PropertyModelPagedResult } from '@reapit/foundations-ts-definitions'
 import { URLS, BASE_HEADERS } from '../constants/api'
 
 export const propertiesApiService = async (
