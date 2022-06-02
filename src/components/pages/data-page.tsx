@@ -1,29 +1,31 @@
-import React, { useEffect, FC, useState } from 'react'
+import { useReapitConnect } from '@reapit/connect-session'
 import {
-  Title,
-  Subtitle,
   Button,
   elHFull,
   elMb5,
   FlexContainer,
   Icon,
+  Loader,
   PageContainer,
   SecondaryNavContainer,
   SmallText,
-  Loader,
+  Subtitle,
   Table,
+  Title
 } from '@reapit/elements'
-import { useReapitConnect } from '@reapit/connect-session'
 import { PropertyModelPagedResult } from '@reapit/foundations-ts-definitions'
+import React, { FC, useEffect, useState } from 'react'
 import { reapitConnectBrowserSession } from '../../core/connect-session'
-import { openNewPage } from '../../utils/navigation'
 import { propertiesApiService } from '../../platform-api/properties-api'
+import { openNewPage } from '../../utils/navigation'
+import PropertiesExpandedForm from '../ui/table/PropertiesExpandedForm'
 
 export const DataPage: FC = () => {
   const { connectSession } = useReapitConnect(reapitConnectBrowserSession)
-  const [Properties, setProperties] = useState<PropertyModelPagedResult>({})
 
+  const [Properties, setProperties] = useState<PropertyModelPagedResult>({})
   const [loading, setLoading] = useState<boolean>(false)
+  const [indexExpandedRow, setIndexExpandedRow] = useState<number | null>(null)
 
   const refetchData = async () => {
     const fetchResult = await propertiesApiService(connectSession, {
@@ -80,7 +82,23 @@ export const DataPage: FC = () => {
           <Loader label="loading" />
         ) : (
           <Table
-            rows={Properties._embedded?.map(({ id, boardNotes, description, selling }) => ({
+            indexExpandedRow={indexExpandedRow}
+            setIndexExpandedRow={setIndexExpandedRow}
+            rows={Properties._embedded?.map(({ id, address, _eTag }) => ({
+              expandableContent: {
+                icon: 'editSystem',
+                content: (
+                  <PropertiesExpandedForm
+                    _eTag={_eTag}
+                    address={address}
+                    connectSession={connectSession}
+                    dataRefetcher={refetchData}
+                    expandedFormIndexSetter={setIndexExpandedRow}
+                    id={id}
+                  />
+                ),
+                headerContent: <Icon icon="editSystem" fontSize="1.2rem" />,
+              },
               cells: [
                 {
                   label: 'Properties Id',
@@ -90,29 +108,29 @@ export const DataPage: FC = () => {
                   },
                 },
                 {
-                  label: 'Selling Agency',
-                  value: selling?.agency,
+                  label: 'Building Name',
+                  value: address?.buildingName ?? '',
                   narrowTable: {
                     showLabel: true,
                   },
                 },
                 {
-                  label: 'Selling Price',
-                  value: selling?.price,
+                  label: 'Building Number',
+                  value: address?.buildingNumber ?? '',
                   narrowTable: {
                     showLabel: true,
                   },
                 },
                 {
-                  label: 'Description',
-                  value: description ?? '',
+                  label: 'Address Line 1',
+                  value: address?.line1 ?? '',
                   narrowTable: {
                     showLabel: true,
                   },
                 },
                 {
-                  label: 'Board Notes',
-                  value: boardNotes ?? '',
+                  label: 'Address Line 2',
+                  value: address?.line2 ?? '',
                   narrowTable: {
                     showLabel: true,
                   },

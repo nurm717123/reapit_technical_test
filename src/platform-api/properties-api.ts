@@ -1,6 +1,6 @@
 import { ReapitConnectSession } from '@reapit/connect-session'
 import { Properties, PropertyModelPagedResult } from '@reapit/foundations-ts-definitions'
-import { URLS, BASE_HEADERS } from '../constants/api'
+import { BASE_HEADERS, URLS } from '../constants/api'
 
 export const propertiesApiService = async (
   session: ReapitConnectSession | null,
@@ -32,6 +32,37 @@ export const propertiesApiService = async (
     if (response.ok) {
       const responseJson: Promise<PropertyModelPagedResult | undefined> = response.json()
       return responseJson
+    }
+
+    throw new Error('No response returned by API')
+  } catch (err) {
+    const error = err as Error
+    console.error('Error fetching PropertyModelPagedResult List Types', error.message)
+  }
+}
+
+export const updatePropertiesApiService = async (
+  session: ReapitConnectSession | null,
+  id: string,
+  body: any,
+  eTag: string,
+): Promise<boolean | undefined> => {
+  try {
+    if (!session) return
+
+    const response = await fetch(`${window.reapit.config.platformApiUrl}${URLS.PROPERTIES_LISTS_TYPES}${id}`, {
+      method: 'PATCH',
+      headers: {
+        ...BASE_HEADERS,
+        'If-Match': eTag,
+        Authorization: `Bearer ${session?.accessToken}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(body),
+    })
+
+    if (response.ok) {
+      return true
     }
 
     throw new Error('No response returned by API')
