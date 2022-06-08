@@ -1,28 +1,29 @@
 import { ReapitConnectSession } from '@reapit/connect-session'
-import { Button, ButtonGroup, FormLayout, InputGroup, InputWrap, Molecule, Subtitle, useSnack } from '@reapit/elements'
+import { Button, ButtonGroup, FormLayout, InputGroup, InputWrap, Molecule, Subtitle } from '@reapit/elements'
 import { PropertyModel } from '@reapit/foundations-ts-definitions'
 import React from 'react'
 import { updatePropertiesApiService } from '../../../platform-api/properties-api'
+
+// eslint-disable-next-line no-unused-vars
+type TPromiseCallback = (isSuccess: boolean) => Promise<void>
 
 function PropertiesExpandedForm({
   id,
   address,
   expandedFormIndexSetter,
   _eTag,
-  dataRefetcher,
+  callback,
   connectSession,
 }: {
   id?: string
-  address?: PropertyModel['address'],
+  address?: PropertyModel['address']
   // buildingNumber?: string
   // buildingName?: string
   _eTag?: string
   expandedFormIndexSetter: React.Dispatch<React.SetStateAction<number | null>>
-  dataRefetcher: () => Promise<void>
+  callback: TPromiseCallback
   connectSession: ReapitConnectSession | null
 }) {
-  const { info } = useSnack()
-
   const hideExpandedForm = () => {
     expandedFormIndexSetter(null)
   }
@@ -38,6 +39,7 @@ function PropertiesExpandedForm({
       alert('this item does not have an ID or eTag')
       return
     }
+    hideExpandedForm()
     updatePropertiesApiService(
       connectSession,
       id,
@@ -48,14 +50,12 @@ function PropertiesExpandedForm({
           buildingName: newBuildingName,
           line1: newLine1,
           line2: newLine2,
-        }
+        },
       },
       _eTag,
-    ).then((result) => {
-      if (result) {
-        hideExpandedForm()
-        dataRefetcher()
-        info('data updated successfully')
+    ).then((isSuccess) => {
+      if (isSuccess) {
+        callback(isSuccess)
       }
     })
   }
@@ -68,7 +68,12 @@ function PropertiesExpandedForm({
             <InputGroup name="buildingName" label="Building Name" type="text" defaultValue={address?.buildingName} />
           </InputWrap>
           <InputWrap>
-            <InputGroup name="buildingNumber" label="Building Number" type="text" defaultValue={address?.buildingNumber} />
+            <InputGroup
+              name="buildingNumber"
+              label="Building Number"
+              type="text"
+              defaultValue={address?.buildingNumber}
+            />
           </InputWrap>
           <InputWrap>
             <InputGroup name="line1" label="Address Line 1" type="text" defaultValue={address?.line1} />
