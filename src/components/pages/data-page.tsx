@@ -84,7 +84,7 @@ export const DataPage: FC = () => {
           <Table
             indexExpandedRow={indexExpandedRow}
             setIndexExpandedRow={setIndexExpandedRow}
-            rows={Properties._embedded?.map(({ id, address, _eTag }) => ({
+            rows={Properties._embedded?.map(({ id, address, selling, internalArea, rooms, _eTag }) => ({
               expandableContent: {
                 icon: 'editSystem',
                 content: (
@@ -109,28 +109,35 @@ export const DataPage: FC = () => {
                 },
                 {
                   label: 'Building Name',
-                  value: address?.buildingName ?? '',
+                  value: address?.buildingName ? address.buildingName : 'unspecified',
                   narrowTable: {
                     showLabel: true,
                   },
                 },
                 {
-                  label: 'Building Number',
-                  value: address?.buildingNumber ?? '',
+                  label: 'Price',
+                  value: selling?.price ?? '-',
                   narrowTable: {
                     showLabel: true,
                   },
                 },
                 {
-                  label: 'Address Line 1',
-                  value: address?.line1 ?? '',
+                  label: 'Address',
+                  value: address ? `${address.line1}, ${address.line2}, ${address.line3}, ${address.line4}` : 'unspecified',
                   narrowTable: {
                     showLabel: true,
                   },
                 },
                 {
-                  label: 'Address Line 2',
-                  value: address?.line2 ?? '',
+                  label: 'Rooms',
+                  value: rooms?.length ? rooms.length : 'unspecified',
+                  narrowTable: {
+                    showLabel: true,
+                  },
+                },
+                {
+                  label: 'Area',
+                  value: internalArea ? `${internalArea.min} to ${internalArea.max} ${internalArea.type}` : 'unspecified',
                   narrowTable: {
                     showLabel: true,
                   },
