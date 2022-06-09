@@ -1,8 +1,9 @@
 import { ReapitConnectSession } from '@reapit/connect-session'
 import { Properties, PropertyModelPagedResult } from '@reapit/foundations-ts-definitions'
+import Axios from '../axios/axios'
 import { BASE_HEADERS, URLS } from '../constants/api'
 
-export const propertiesApiService = async (
+export const propertiesApiServiceOld = async (
   session: ReapitConnectSession | null,
   params: Properties | undefined = undefined,
 ): Promise<PropertyModelPagedResult | undefined> => {
@@ -38,6 +39,34 @@ export const propertiesApiService = async (
   } catch (err) {
     const error = err as Error
     console.error('Error fetching PropertyModelPagedResult List Types', error.message)
+  }
+}
+
+export const propertiesApiService = async (
+  params: Properties | undefined = undefined,
+): Promise<PropertyModelPagedResult | undefined> => {
+  try {
+    let routeParams: string = ''
+
+    if (params) {
+      for (const paramKey in params) {
+        const paramValue: String = params[paramKey].toString()
+        routeParams += `${paramKey}=${paramValue}&`
+      }
+    }
+
+    const response = await Axios.get(
+      `${URLS.PROPERTIES_LISTS_TYPES}?${routeParams}`
+    )
+
+    if (response.status < 400) {
+      return response.data
+    }
+
+    throw new Error('No response returned by API')
+  } catch (err) {
+    const error = err as Error
+    console.error('Error fetching PropertyModelPagedResult', error.message)
   }
 }
 

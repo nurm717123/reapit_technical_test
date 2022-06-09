@@ -18,8 +18,8 @@ import {
   Table,
   Title,
 } from '@reapit/elements'
-import { PropertyModelPagedResult } from '@reapit/foundations-ts-definitions'
 import React, { FC, useEffect, useState } from 'react'
+import { useQuery, useQueryClient } from 'react-query'
 import { reapitConnectBrowserSession } from '../../core/connect-session'
 import { propertiesApiService } from '../../platform-api/properties-api'
 import { openNewPage } from '../../utils/navigation'
@@ -33,15 +33,6 @@ enum persistantNotifIcon {
 
 export const DataPage: FC = () => {
   const { connectSession } = useReapitConnect(reapitConnectBrowserSession)
-
-  const [PropertiesMetaData, setPropertiesMetaData] = useState<{
-    totalPageCount: PropertyModelPagedResult['totalPageCount']
-  }>({
-    totalPageCount: 1,
-  })
-
-  const [propertiesPageData, setPropertiesPageData] = useState<Array<PropertyModelPagedResult['_embedded']>>([])
-  const [loading, setLoading] = useState<boolean>(false)
   const [indexExpandedRow, setIndexExpandedRow] = useState<number | null>(null)
   const [persistantNotifState, setPersistantNotifState] = useState<{
     intent: Intent
@@ -52,52 +43,39 @@ export const DataPage: FC = () => {
     message: 'you can edit each properties by click the expand button',
     isExpanded: false,
   })
-  const [currentPage, setCurrentPage] = useState<number>(1)
+  const [currentPage, setCurrentPage] = useState<number>(0)
 
   const setPersistantNotifExpanded = (isExpanded) => {
     setPersistantNotifState((state) => ({ ...state, isExpanded }))
   }
 
-  const refetchData = async () => {
-    setLoading(true)
-    const fetchResult = await propertiesApiService(connectSession, {
+  const propertiesFetcher = (additionalPage: number = 0) =>
+    propertiesApiService({
+      pageNumber: currentPage + additionalPage,
       marketingMode: ['selling'],
       pageSize: 5,
-      pageNumber: currentPage,
     })
 
-    setLoading(false)
+  const queryClient = useQueryClient()
+  const propertiesQuery = useQuery(['properties', currentPage], () => propertiesFetcher(), {
+    keepPreviousData: true,
+    staleTime: 5000,
+  })
 
-    // console.log(fetchResult)
-
-    if (fetchResult) {
-      setPropertiesMetaData({
-        totalPageCount: fetchResult.totalPageCount,
-      })
-
-      setPropertiesPageData((pages) => {
-        const copy: Array<PropertyModelPagedResult['_embedded']> = JSON.parse(JSON.stringify(pages))
-        copy[currentPage - 1] = fetchResult._embedded
-        return copy
-      })
-    }
-  }
-
+  // Prefetch the next page!
   useEffect(() => {
-    if (connectSession) {
-      refetchData()
+    if (
+      propertiesQuery.data?.pageNumber !== undefined &&
+      propertiesQuery.data?.totalPageCount !== undefined &&
+      propertiesQuery.data.pageNumber < propertiesQuery.data.totalPageCount
+    ) {
+      queryClient.prefetchQuery(['projects', currentPage + 1], () => propertiesFetcher(1))
     }
-  }, [connectSession])
-
-  useEffect(() => {
-    if (connectSession) {
-      if (!propertiesPageData[currentPage - 1]) refetchData()
-    }
-  }, [currentPage])
+  }, [propertiesQuery.data, currentPage, queryClient])
 
   const propertiesUpdateCallback = async (isSuccess: boolean) => {
     if (isSuccess) {
-      await refetchData()
+      await propertiesQuery.refetch()
     }
     setPersistantNotifState({
       intent: isSuccess ? 'success' : 'danger',
@@ -133,85 +111,83 @@ export const DataPage: FC = () => {
       </SecondaryNavContainer>
       <PageContainer className={elHFull}>
         <Title>Properties for Sale</Title>
-        {loading ? (
+        {propertiesQuery.isLoading ? (
           <Loader label="loading" />
         ) : (
           <div className={`${elFlex} ${elFlexColumn}`}>
             <Table
               indexExpandedRow={indexExpandedRow}
               setIndexExpandedRow={setIndexExpandedRow}
-              rows={propertiesPageData[currentPage - 1]?.map(
-                ({ id, address, selling, internalArea, rooms, _eTag }) => ({
-                  expandableContent: {
-                    icon: 'editSystem',
-                    content: (
-                      <PropertiesExpandedForm
-                        _eTag={_eTag}
-                        address={address}
-                        connectSession={connectSession}
-                        callback={propertiesUpdateCallback}
-                        expandedFormIndexSetter={setIndexExpandedRow}
-                        id={id}
-                      />
-                    ),
-                    headerContent: <Icon icon="editSystem" fontSize="1.2rem" />,
+              rows={propertiesQuery.data?._embedded?.map(({ id, address, selling, internalArea, rooms, _eTag }) => ({
+                expandableContent: {
+                  icon: 'editSystem',
+                  content: (
+                    <PropertiesExpandedForm
+                      _eTag={_eTag}
+                      address={address}
+                      connectSession={connectSession}
+                      callback={propertiesUpdateCallback}
+                      expandedFormIndexSetter={setIndexExpandedRow}
+                      id={id}
+                    />
+                  ),
+                  headerContent: <Icon icon="editSystem" fontSize="1.2rem" />,
+                },
+                cells: [
+                  {
+                    label: 'Properties Id',
+                    value: id?.length ? id : '-',
+                    narrowTable: {
+                      showLabel: true,
+                    },
                   },
-                  cells: [
-                    {
-                      label: 'Properties Id',
-                      value: id?.length ? id : '-',
-                      narrowTable: {
-                        showLabel: true,
-                      },
+                  {
+                    label: 'Building Name',
+                    value: address?.buildingName ? address.buildingName : 'unspecified',
+                    narrowTable: {
+                      showLabel: true,
                     },
-                    {
-                      label: 'Building Name',
-                      value: address?.buildingName ? address.buildingName : 'unspecified',
-                      narrowTable: {
-                        showLabel: true,
-                      },
+                  },
+                  {
+                    label: 'Price',
+                    value: selling?.price ?? '-',
+                    narrowTable: {
+                      showLabel: true,
                     },
-                    {
-                      label: 'Price',
-                      value: selling?.price ?? '-',
-                      narrowTable: {
-                        showLabel: true,
-                      },
+                  },
+                  {
+                    label: 'Address',
+                    value: address
+                      ? `${address.line1}, ${address.line2}, ${address.line3}, ${address.line4}`
+                      : 'unspecified',
+                    narrowTable: {
+                      showLabel: true,
                     },
-                    {
-                      label: 'Address',
-                      value: address
-                        ? `${address.line1}, ${address.line2}, ${address.line3}, ${address.line4}`
-                        : 'unspecified',
-                      narrowTable: {
-                        showLabel: true,
-                      },
+                  },
+                  {
+                    label: 'Rooms',
+                    value: rooms?.length ? rooms.length : 'unspecified',
+                    narrowTable: {
+                      showLabel: true,
                     },
-                    {
-                      label: 'Rooms',
-                      value: rooms?.length ? rooms.length : 'unspecified',
-                      narrowTable: {
-                        showLabel: true,
-                      },
+                  },
+                  {
+                    label: 'Area',
+                    value: internalArea
+                      ? `${internalArea.min} to ${internalArea.max} ${internalArea.type}`
+                      : 'unspecified',
+                    narrowTable: {
+                      showLabel: true,
                     },
-                    {
-                      label: 'Area',
-                      value: internalArea
-                        ? `${internalArea.min} to ${internalArea.max} ${internalArea.type}`
-                        : 'unspecified',
-                      narrowTable: {
-                        showLabel: true,
-                      },
-                    },
-                  ],
-                }),
-              )}
+                  },
+                ],
+              }))}
             />
             <div className="el-flex-align-self-center el-pt5">
               <Pagination
                 callback={setCurrentPage}
-                currentPage={currentPage}
-                numberPages={PropertiesMetaData.totalPageCount ?? 1}
+                currentPage={currentPage ? currentPage : 1}
+                numberPages={propertiesQuery.data?.totalPageCount ?? 1}
               />
             </div>
           </div>
