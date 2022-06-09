@@ -83,7 +83,7 @@ function PropertiesExpandedForm({
           </InputWrap>
           <InputWrap />
           <InputWrap>
-            <ButtonGroup>
+            <ButtonGroup alignment='right'>
               <Button chevronRight intent="primary">
                 Submit
               </Button>
