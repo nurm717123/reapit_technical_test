@@ -1,5 +1,5 @@
 import { ReapitConnectSession } from '@reapit/connect-session'
-import { Properties, PropertyModelPagedResult } from '@reapit/foundations-ts-definitions'
+import { Properties, PropertyModel, PropertyModelPagedResult } from '@reapit/foundations-ts-definitions'
 import Axios from '../axios/axios'
 import { BASE_HEADERS, URLS } from '../constants/api'
 
@@ -70,6 +70,16 @@ export const propertiesApiService = async (
   }
 }
 
+export const propertiesApiDetailService = async (
+  propertyid: string
+): Promise<PropertyModel> => {
+  const response = await Axios.get(
+    `${URLS.PROPERTIES_LISTS_TYPES}/${propertyid}`
+  )
+
+  return response.data
+}
+
 export const updatePropertiesApiService = async (
   session: ReapitConnectSession | null,
   id: string,
@@ -79,7 +89,7 @@ export const updatePropertiesApiService = async (
   try {
     if (!session) return
 
-    const response = await fetch(`${window.reapit.config.platformApiUrl}${URLS.PROPERTIES_LISTS_TYPES}${id}`, {
+    const response = await fetch(`${window.reapit.config.platformApiUrl}${URLS.PROPERTIES_LISTS_TYPES}/${id}`, {
       method: 'PATCH',
       headers: {
         ...BASE_HEADERS,

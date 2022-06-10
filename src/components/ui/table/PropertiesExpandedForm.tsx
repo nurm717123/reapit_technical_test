@@ -2,7 +2,10 @@ import { ReapitConnectSession } from '@reapit/connect-session'
 import { Button, ButtonGroup, FormLayout, InputGroup, InputWrap, Molecule, Subtitle } from '@reapit/elements'
 import { PropertyModel } from '@reapit/foundations-ts-definitions'
 import React from 'react'
+import { useHistory } from 'react-router'
+import { Routes } from '../../../constants/routes'
 import { updatePropertiesApiService } from '../../../platform-api/properties-api'
+import { navigate } from '../../../utils/navigation'
 
 // eslint-disable-next-line no-unused-vars
 type TPromiseCallback = (isSuccess: boolean) => Promise<void>
@@ -24,6 +27,8 @@ function PropertiesExpandedForm({
   callback: TPromiseCallback
   connectSession: ReapitConnectSession | null
 }) {
+  const history = useHistory()
+
   const hideExpandedForm = () => {
     expandedFormIndexSetter(null)
   }
@@ -83,7 +88,10 @@ function PropertiesExpandedForm({
           </InputWrap>
           <InputWrap />
           <InputWrap>
-            <ButtonGroup alignment='right'>
+            <ButtonGroup alignment="right">
+              <Button type='button' chevronRight intent="secondary" onClick={navigate(history, `${Routes.DATA}/${id}`)}>
+                Look more
+              </Button>
               <Button chevronRight intent="primary">
                 Submit
               </Button>

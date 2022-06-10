@@ -5,5 +5,5 @@ export const BASE_HEADERS = {
 
 export const URLS = {
   CONFIGURATION_APPOINTMENT_TYPES: '/configuration/appointmentTypes',
-  PROPERTIES_LISTS_TYPES: '/properties/',
+  PROPERTIES_LISTS_TYPES: '/properties',
 }

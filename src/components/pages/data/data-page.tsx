@@ -20,10 +20,10 @@ import {
 } from '@reapit/elements'
 import React, { FC, useEffect, useState } from 'react'
 import { useQuery, useQueryClient } from 'react-query'
-import { reapitConnectBrowserSession } from '../../core/connect-session'
-import { propertiesApiService } from '../../platform-api/properties-api'
-import { openNewPage } from '../../utils/navigation'
-import PropertiesExpandedForm from '../ui/table/PropertiesExpandedForm'
+import { reapitConnectBrowserSession } from '../../../core/connect-session'
+import { propertiesApiService } from '../../../platform-api/properties-api'
+import { openNewPage } from '../../../utils/navigation'
+import PropertiesExpandedForm from '../../ui/table/PropertiesExpandedForm'
 
 enum persistantNotifIcon {
   info = 'infoSolidSystem',
