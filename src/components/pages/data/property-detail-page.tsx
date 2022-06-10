@@ -1,16 +1,19 @@
 import {
   BodyText,
   Col,
+  elM4,
   elMb4,
+  elMxAuto,
   elP4,
   elPb6,
+  elTextCenter,
   elW11,
+  elW12,
   Grid,
   Icon,
   Loader,
   RowProps,
   SmallText,
-  Subtitle,
   Table,
   Title,
   useMediaQuery,
@@ -25,16 +28,12 @@ import { MainImage } from './__styles__/property-detail.style'
 
 function PropertyDetail() {
   const { propertyId } = useParams<{ propertyId: string }>()
-
   const propertiesFetcher = () => propertiesApiDetailService(propertyId)
-
   const propertyQuery = useQuery<PropertyModel, Error>(['propertyById', propertyId], () => propertiesFetcher(), {
     staleTime: 5000,
     enabled: false,
   })
-
   const { isMobile } = useMediaQuery()
-
   const qc = useQueryClient()
 
   React.useEffect(() => {
@@ -69,17 +68,19 @@ function PropertyDetail() {
 
   return (
     <div>
-      {propertyQuery.isLoading && <Loader label="loading" />}
+      {propertyQuery.isLoading && <Loader className={elM4} label="loading table data" />}
       {propertyQuery.isSuccess && (
         <div>
           <MainImage src={PropertyPlaceholderImage} alt="" />
           <div className={`${elP4} ${elPb6}`}>
-            <Title className={`${elMb4}`}>{propertyQuery.data.address?.buildingName ?? 'Unnamed'}</Title>
-            <Subtitle>
+            <Title className={`${elMb4} ${isMobile ? elTextCenter : ''}`}>
+              {propertyQuery.data.address?.buildingName ?? 'Unnamed'}
+            </Title>
+            <BodyText className={`${isMobile ? elTextCenter : elW11}`}>
               {propertyQuery.data.longDescription || propertyQuery.data.description || 'No description'}
-            </Subtitle>
+            </BodyText>
             <Table
-              className={elW11}
+              className={`${isMobile ? `${elMxAuto} ${elW12}` : elW11}`}
               indexExpandedRow={isMobile ? null : 0}
               rows={[propertyQuery.data].map(
                 ({ id, address, selling, internalArea, externalArea, rooms, currency, bedrooms, bathrooms }) => {
