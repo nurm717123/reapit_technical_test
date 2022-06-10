@@ -2,11 +2,14 @@ import { useReapitConnect } from '@reapit/connect-session'
 import {
   Button,
   elFlex,
+  elFlexAlignSelfEnd,
   elFlexColumn,
   elHFull,
   elMb5,
   FlexContainer,
   Icon,
+  Input,
+  InputGroup,
   Intent,
   Loader,
   PageContainer,
@@ -115,6 +118,10 @@ export const DataPage: FC = () => {
           <Loader label="loading" />
         ) : (
           <div className={`${elFlex} ${elFlexColumn}`}>
+            <InputGroup className={`${elFlexAlignSelfEnd} ${elMb5}`}>
+              <Input type="search" placeholder="search price / type here" />
+              <Icon icon="searchSystem" />
+            </InputGroup>
             <Table
               indexExpandedRow={indexExpandedRow}
               setIndexExpandedRow={setIndexExpandedRow}
