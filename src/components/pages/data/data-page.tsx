@@ -19,7 +19,7 @@ import {
   Loader,
   PageContainer,
   Pagination,
-  PersistantNotification,
+  PersistentNotification,
   SecondaryNavContainer,
   Select,
   SmallText,
@@ -286,7 +286,7 @@ export const DataPage: FC = () => {
           </div>
         )}
       </PageContainer>
-      <PersistantNotification
+      <PersistentNotification
         isExpanded={persistantNotifState.isExpanded}
         onExpansionToggle={setPersistantNotifExpanded}
         isFixed
@@ -294,7 +294,7 @@ export const DataPage: FC = () => {
         intent={persistantNotifState.intent}
       >
         {persistantNotifState.message}
-      </PersistantNotification>
+      </PersistentNotification>
     </FlexContainer>
   )
 }
