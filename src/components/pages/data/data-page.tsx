@@ -43,7 +43,7 @@ enum persistantNotifIcon {
 }
 
 const recentlyAddedDaysBefore = 5
-const filterOptions = ['Unfiltered', 'Recently Added']
+const filterOptions = ['Unfiltered', `Recently Added (in ${recentlyAddedDaysBefore} days)`] as const
 
 enum propertyTypes {
   all = 'All',
@@ -131,7 +131,7 @@ export const DataPage: FC = () => {
     const value: typeof filterOptions[number] = (e.target as HTMLFormElement).value
 
     let createdFrom: Date | undefined
-    if (value === 'Recently Added') {
+    if (value === `Recently Added (in ${recentlyAddedDaysBefore} days)`) {
       createdFrom = new Date()
       createdFrom.setDate(createdFrom.getDate() - recentlyAddedDaysBefore)
     }
