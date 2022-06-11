@@ -1,13 +1,16 @@
+import { cx } from '@linaria/core'
 import { useReapitConnect } from '@reapit/connect-session'
 import {
   Button,
   elFlex,
   elFlex1,
+  elFlexAlignSelfCenter,
   elFlexColumn,
   elFlexJustifyBetween,
   elFlexRow,
   elHFull,
   elMb5,
+  elPt5,
   FlexContainer,
   Icon,
   Input,
@@ -178,8 +181,8 @@ export const DataPage: FC = () => {
         {propertiesQuery.isLoading ? (
           <Loader label="loading" />
         ) : (
-          <div className={`${elFlex} ${elFlexColumn}`}>
-            <FlexContainer className={`${elMb5} ${elFlexJustifyBetween} ${elFlexRow}`} isFlexAuto>
+          <div className={cx(elFlex, elFlexColumn)}>
+            <FlexContainer className={cx(elMb5, elFlexJustifyBetween, elFlexRow)} isFlexAuto>
               <Select className={elFlex1} onChange={onPropertyTypeChange}>
                 {Object.keys(propertyTypes).map((type) => (
                   <option value={type} key={type}>
@@ -195,14 +198,14 @@ export const DataPage: FC = () => {
                 ))}
               </Select>
             </FlexContainer>
-            <FlexContainer className={`${elMb5} ${elFlexJustifyBetween} ${elFlexRow}`} isFlexAuto>
-              <InputGroup className={`${elFlex1}`}>
+            <FlexContainer className={cx(elMb5, elFlexJustifyBetween, elFlexRow)} isFlexAuto>
+              <InputGroup className={elFlex1}>
                 <Input type="number" placeholder="Price from" onChange={onPriceFromToChange} />
-                {isMobile && <Icon icon="dollarSystem" />}
+                {!isMobile && <Icon icon="dollarSystem" />}
               </InputGroup>
-              <InputGroup className={`${elFlex1}`}>
+              <InputGroup className={elFlex1}>
                 <Input type="number" placeholder="Price to" onChange={onPriceToChange} />
-                {isMobile && <Icon icon="dollarSystem" />}
+                {!isMobile && <Icon icon="dollarSystem" />}
               </InputGroup>
             </FlexContainer>
             <Table
@@ -273,7 +276,7 @@ export const DataPage: FC = () => {
                 ],
               }))}
             />
-            <div className="el-flex-align-self-center el-pt5">
+            <div className={cx(elFlexAlignSelfCenter, elPt5)}>
               <Pagination
                 callback={setCurrentPage}
                 currentPage={currentPage ? currentPage : 1}
