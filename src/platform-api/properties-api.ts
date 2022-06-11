@@ -50,14 +50,14 @@ export const propertiesApiService = async (
 
     if (params) {
       for (const paramKey in params) {
-        const paramValue: String = params[paramKey].toString()
-        routeParams += `${paramKey}=${paramValue}&`
+        if (typeof params[paramKey] !== 'undefined') {
+          const paramValue: String = params[paramKey].toString()
+          routeParams += `${paramKey}=${paramValue}&`
+        }
       }
     }
 
-    const response = await Axios.get(
-      `${URLS.PROPERTIES_LISTS_TYPES}?${routeParams}`
-    )
+    const response = await Axios.get(`${URLS.PROPERTIES_LISTS_TYPES}?${routeParams}`)
 
     if (response.status < 400) {
       return response.data
@@ -70,12 +70,8 @@ export const propertiesApiService = async (
   }
 }
 
-export const propertiesApiDetailService = async (
-  propertyid: string
-): Promise<PropertyModel> => {
-  const response = await Axios.get(
-    `${URLS.PROPERTIES_LISTS_TYPES}/${propertyid}`
-  )
+export const propertiesApiDetailService = async (propertyid: string): Promise<PropertyModel> => {
+  const response = await Axios.get(`${URLS.PROPERTIES_LISTS_TYPES}/${propertyid}`)
 
   return response.data
 }
