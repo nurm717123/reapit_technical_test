@@ -1,17 +1,30 @@
+import { cx } from '@linaria/core'
 import {
   BodyText,
   Col,
+  elFlex,
+  elFlexAlignCenter,
+  elFlexAlignStart,
+  elFlexColumn,
+  elFlexColumnReverse,
+  elFlexJustifyBetween,
+  elFlexJustifyStart,
+  elFlexRow,
   elM4,
   elMb4,
-  elMxAuto,
+  elMb5,
+  elMb6,
   elP4,
   elPb6,
   elTextCenter,
   elW11,
-  elW12,
+  elWFull,
+  FlexContainer,
   Grid,
   Icon,
   Loader,
+  Molecule,
+  PageContainer,
   RowProps,
   SmallText,
   Table,
@@ -67,128 +80,148 @@ function PropertyDetail() {
   }, [propertyId])
 
   return (
-    <div>
+    <PageContainer>
       {propertyQuery.isLoading && <Loader className={elM4} label="loading table data" />}
       {propertyQuery.isSuccess && (
-        <div>
-          <MainImage src={PropertyPlaceholderImage} alt="" />
-          <div className={`${elP4} ${elPb6}`}>
-            <Title className={`${elMb4} ${isMobile ? elTextCenter : ''}`}>
-              {propertyQuery.data.address?.buildingName ?? 'Unnamed'}
-            </Title>
-            <BodyText className={`${isMobile ? elTextCenter : elW11}`}>
-              {propertyQuery.data.longDescription || propertyQuery.data.description || 'No description'}
-            </BodyText>
-            <Table
-              className={`${isMobile ? `${elMxAuto} ${elW12}` : elW11}`}
-              indexExpandedRow={isMobile ? null : 0}
-              rows={[propertyQuery.data].map(
-                ({ id, address, selling, internalArea, externalArea, rooms, currency, bedrooms, bathrooms }) => {
-                  const addressLines = [address?.line1, address?.line2, address?.line3, address?.line4]
-                    .filter((a) => !!a)
-                    .join(', ')
-
-                  const displayedCells: RowProps['cells'] = [
-                    {
-                      label: 'Properties Id',
-                      value: id?.length ? id : '-',
-                      narrowTable: {
-                        showLabel: true,
-                      },
-                    },
-                    {
-                      label: 'Building Name',
-                      value: address?.buildingName ? address.buildingName : 'unspecified',
-                      narrowTable: {
-                        showLabel: true,
-                      },
-                    },
-                    {
-                      label: 'Bedrooms',
-                      value: bedrooms ?? 0,
-                      narrowTable: {
-                        showLabel: true,
-                      },
-                    },
-                    {
-                      label: 'Bathrooms',
-                      value: bathrooms ?? 0,
-                      narrowTable: {
-                        showLabel: true,
-                      },
-                    },
-                    {
-                      label: `Price (${currency})`,
-                      value: selling?.price ?? '-',
-                      narrowTable: {
-                        showLabel: true,
-                      },
-                    },
-                    {
-                      label: 'Address',
-                      value: addressLines ? addressLines : 'unspecified',
-                      narrowTable: {
-                        showLabel: true,
-                      },
-                    },
-                    {
-                      label: 'Rooms',
-                      value: rooms?.length ? rooms.length : 'unspecified',
-                      narrowTable: {
-                        showLabel: true,
-                      },
-                    },
-                    {
-                      label: 'Internal Area size',
-                      value: internalArea
-                        ? `${internalArea.min} to ${internalArea.max} ${internalArea.type}`
-                        : 'unspecified',
-                      narrowTable: {
-                        showLabel: true,
-                      },
-                    },
-                    {
-                      label: 'External Area size',
-                      value: externalArea
-                        ? `${externalArea.min} to ${externalArea.max} ${externalArea.type}`
-                        : 'unspecified',
-                      narrowTable: {
-                        showLabel: true,
-                      },
-                    },
-                  ]
-                  const rowData: RowProps = {
-                    cells: displayedCells,
-                  }
-
-                  if (!isMobile) {
-                    const cuttedColumns = rowData.cells.splice(-4)
-                    rowData.expandableContent = {
-                      icon: 'moreSystem',
-                      content: (
-                        <Grid>
-                          {cuttedColumns.map((column) => {
-                            return (
-                              <Col key={column.label}>
-                                <BodyText>{column.label}</BodyText>
-                                <SmallText hasBoldText>{column.value}</SmallText>
-                              </Col>
-                            )
-                          })}
-                        </Grid>
-                      ),
-                      headerContent: <Icon icon="moreSystem" fontSize="1.2rem" />,
-                    }
-                  }
-
-                  return rowData
-                },
-              )}
-            />
+        <FlexContainer
+          className={cx(
+            elP4,
+            elPb6,
+            elFlexColumn,
+            elFlexJustifyStart,
+            elFlexAlignStart,
+            !isMobile && elFlexAlignCenter,
+          )}
+        >
+          <div
+            className={cx(
+              elFlex,
+              isMobile ? elFlexColumnReverse : elFlexRow,
+              elFlexJustifyBetween,
+              elFlexAlignStart,
+              elWFull,
+              elMb6,
+            )}
+          >
+            <Molecule>
+              <Title className={`${elMb4} ${isMobile ? elTextCenter : ''}`}>
+                {propertyQuery.data.address?.buildingName ? propertyQuery.data.address?.buildingName : 'Unnamed'}
+              </Title>
+              <BodyText className={`${isMobile ? elTextCenter : elW11}`}>
+                {propertyQuery.data.longDescription || propertyQuery.data.description || 'No description'}
+              </BodyText>
+            </Molecule>
+            <MainImage src={PropertyPlaceholderImage} alt="Property image" className={cx(isMobile && elMb5)} />
           </div>
-        </div>
+          <Table
+            className={elWFull}
+            indexExpandedRow={isMobile ? null : 0}
+            rows={[propertyQuery.data].map(
+              ({ id, address, selling, internalArea, externalArea, rooms, currency, bedrooms, bathrooms }) => {
+                const addressLines = [address?.line1, address?.line2, address?.line3, address?.line4]
+                  .filter((a) => !!a)
+                  .join(', ')
+
+                const displayedCells: RowProps['cells'] = [
+                  {
+                    label: 'Properties Id',
+                    value: id?.length ? id : '-',
+                    narrowTable: {
+                      showLabel: true,
+                    },
+                  },
+                  {
+                    label: 'Building Name',
+                    value: address?.buildingName ? address.buildingName : 'unspecified',
+                    narrowTable: {
+                      showLabel: true,
+                    },
+                  },
+                  {
+                    label: 'Bedrooms',
+                    value: bedrooms ?? 0,
+                    narrowTable: {
+                      showLabel: true,
+                    },
+                  },
+                  {
+                    label: 'Bathrooms',
+                    value: bathrooms ?? 0,
+                    narrowTable: {
+                      showLabel: true,
+                    },
+                  },
+                  {
+                    label: `Price (${currency})`,
+                    value: selling?.price ?? '-',
+                    narrowTable: {
+                      showLabel: true,
+                    },
+                  },
+                  {
+                    label: 'Address',
+                    value: addressLines ? addressLines : 'unspecified',
+                    narrowTable: {
+                      showLabel: true,
+                    },
+                  },
+                  {
+                    label: 'Rooms',
+                    value: rooms?.length ? rooms.length : 'unspecified',
+                    narrowTable: {
+                      showLabel: true,
+                    },
+                  },
+                  {
+                    label: 'Internal Area size',
+                    value: internalArea
+                      ? `${internalArea.min} to ${internalArea.max} ${internalArea.type}`
+                      : 'unspecified',
+                    narrowTable: {
+                      showLabel: true,
+                    },
+                  },
+                  {
+                    label: 'External Area size',
+                    value: externalArea
+                      ? `${externalArea.min} to ${externalArea.max} ${externalArea.type}`
+                      : 'unspecified',
+                    narrowTable: {
+                      showLabel: true,
+                    },
+                  },
+                ]
+                const rowData: RowProps = {
+                  cells: displayedCells,
+                }
+
+                if (!isMobile) {
+                  const cuttedColumns = rowData.cells.splice(-4)
+                  rowData.expandableContent = {
+                    icon: 'moreSystem',
+                    content: (
+                      <Grid>
+                        {cuttedColumns.map((column) => {
+                          return (
+                            <Col key={column.label}>
+                              <BodyText>{column.label}</BodyText>
+                              <SmallText hasBoldText>{column.value}</SmallText>
+                            </Col>
+                          )
+                        })}
+                      </Grid>
+                    ),
+                    headerContent: <Icon icon="moreSystem" fontSize="1.2rem" />,
+                  }
+                }
+
+                return rowData
+              },
+            )}
+          />
+        </FlexContainer>
       )}
-    </div>
+    </PageContainer>
   )
 }
 
