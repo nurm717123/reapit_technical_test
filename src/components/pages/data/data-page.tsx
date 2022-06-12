@@ -3,30 +3,23 @@ import { useReapitConnect } from '@reapit/connect-session'
 import {
   Button,
   elFlex,
-  elFlex1,
   elFlexAlignSelfCenter,
   elFlexColumn,
-  elFlexJustifyBetween,
-  elFlexRow,
   elHFull,
   elMb5,
   elPt5,
   FlexContainer,
   Icon,
-  Input,
-  InputGroup,
   Intent,
   Loader,
   PageContainer,
   Pagination,
   PersistentNotification,
   SecondaryNavContainer,
-  Select,
   SmallText,
   Subtitle,
   Table,
   Title,
-  useMediaQuery,
 } from '@reapit/elements'
 import { Properties } from '@reapit/foundations-ts-definitions'
 import React, { FC, useEffect, useState } from 'react'
@@ -34,6 +27,7 @@ import { useQuery, useQueryClient } from 'react-query'
 import { reapitConnectBrowserSession } from '../../../core/connect-session'
 import { propertiesApiService } from '../../../platform-api/properties-api'
 import { openNewPage } from '../../../utils/navigation'
+import { FilterInput, FilterSelect, FilterWrapper } from '../../ui/inputs/InputFilters'
 import PropertiesExpandedForm from '../../ui/table/PropertiesExpandedForm'
 
 enum persistantNotifIcon {
@@ -59,6 +53,13 @@ enum propertyTypes {
   developmentPlot = 'Development Plot',
 }
 
+const propertyFilterComponentData = Object.keys(propertyTypes).map((propertyType) => ({
+  key: propertyType,
+  value: propertyTypes[propertyType],
+}))
+
+const filterOptionsComponentData = filterOptions.map((f) => ({ key: f, value: f }))
+
 export const DataPage: FC = () => {
   const { connectSession } = useReapitConnect(reapitConnectBrowserSession)
   const [indexExpandedRow, setIndexExpandedRow] = useState<number | null>(null)
@@ -72,7 +73,6 @@ export const DataPage: FC = () => {
     isExpanded: false,
   })
   const [currentPage, setCurrentPage] = useState<number>(0)
-  const { isMobile } = useMediaQuery()
   const [filter, setFilter] = useState<Properties>({})
   const qc = useQueryClient()
 
@@ -182,32 +182,19 @@ export const DataPage: FC = () => {
           <Loader label="loading" />
         ) : (
           <div className={cx(elFlex, elFlexColumn)}>
-            <FlexContainer className={cx(elMb5, elFlexJustifyBetween, elFlexRow)} isFlexAuto>
-              <Select className={elFlex1} onChange={onPropertyTypeChange}>
-                {Object.keys(propertyTypes).map((type) => (
-                  <option value={type} key={type}>
-                    {propertyTypes[type]}
-                  </option>
-                ))}
-              </Select>
-              <Select className={elFlex1} onChange={onChooseRecentlyAdded}>
-                {filterOptions.map((opt) => (
-                  <option value={opt} key={opt}>
-                    {opt}
-                  </option>
-                ))}
-              </Select>
-            </FlexContainer>
-            <FlexContainer className={cx(elMb5, elFlexJustifyBetween, elFlexRow)} isFlexAuto>
-              <InputGroup className={elFlex1}>
-                <Input type="number" placeholder="Price from" onChange={onPriceFromToChange} />
-                {!isMobile && <Icon icon="dollarSystem" />}
-              </InputGroup>
-              <InputGroup className={elFlex1}>
-                <Input type="number" placeholder="Price to" onChange={onPriceToChange} />
-                {!isMobile && <Icon icon="dollarSystem" />}
-              </InputGroup>
-            </FlexContainer>
+            <FilterWrapper>
+              <FilterSelect filters={propertyFilterComponentData} onChange={onPropertyTypeChange} />
+              <FilterSelect filters={filterOptionsComponentData} onChange={onChooseRecentlyAdded} />
+            </FilterWrapper>
+            <FilterWrapper>
+              <FilterInput
+                type="number"
+                placeholder="Price from"
+                onChange={onPriceFromToChange}
+                iconName="dollarSystem"
+              />
+              <FilterInput type="number" placeholder="Price to" onChange={onPriceToChange} iconName="dollarSystem" />
+            </FilterWrapper>
             <Table
               indexExpandedRow={indexExpandedRow}
               setIndexExpandedRow={setIndexExpandedRow}
