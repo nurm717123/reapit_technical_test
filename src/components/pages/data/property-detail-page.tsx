@@ -104,10 +104,10 @@ function PropertyDetail() {
             )}
           >
             <Molecule>
-              <Title className={`${elMb4} ${isMobile ? elTextCenter : ''}`}>
+              <Title className={cx(elMb4, isMobile && elTextCenter)}>
                 {propertyQuery.data.address?.buildingName ? propertyQuery.data.address?.buildingName : 'Unnamed'}
               </Title>
-              <BodyText className={`${isMobile ? elTextCenter : elW11}`}>
+              <BodyText className={cx(isMobile ? elTextCenter : elW11)}>
                 {propertyQuery.data.longDescription || propertyQuery.data.description || 'No description'}
               </BodyText>
             </Molecule>
