@@ -11,7 +11,7 @@ const Axios = axios.create({
 
 // get the access token
 ; (async () => {
-    if (reapitConnectBrowserSession) {
+    if (reapitConnectBrowserSession && reapitConnectBrowserSession.connectSession) {
         reapitConnectBrowserSession.connectSession().then((session) => {
             if (session) {
                 Axios.defaults.headers.common['Authorization'] = `Bearer ${session.accessToken}`
