@@ -4,6 +4,7 @@ import Router, { catchChunkError } from '../router'
 import { MediaStateProvider, NavStateProvider } from '@reapit/elements'
 import { Router as ReactRouter, Switch } from 'react-router-dom'
 import { createBrowserHistory } from 'history'
+import { QueryClient, QueryClientProvider } from 'react-query'
 
 const history = createBrowserHistory()
 
@@ -21,17 +22,28 @@ describe('Router', () => {
   it('should match a snapshot', async () => {
     let component: RenderResult
 
+    const queryClient = new QueryClient({
+      defaultOptions: {
+        // queries: {
+        //   refetchOnMount: process.env.NODE_ENV === 'production',
+        //   refetchOnWindowFocus: process.env.NODE_ENV === 'production',
+        // },
+      },
+    })
+
     await act(() => {
       component = render(
-        <ReactRouter history={history}>
-          <Switch>
-            <NavStateProvider>
-              <MediaStateProvider>
-                <Router />
-              </MediaStateProvider>
-            </NavStateProvider>
-          </Switch>
-        </ReactRouter>,
+        <QueryClientProvider client={queryClient}>
+          <ReactRouter history={history}>
+            <Switch>
+              <NavStateProvider>
+                <MediaStateProvider>
+                  <Router />
+                </MediaStateProvider>
+              </NavStateProvider>
+            </Switch>
+          </ReactRouter>
+        </QueryClientProvider>,
       )
     })
 
